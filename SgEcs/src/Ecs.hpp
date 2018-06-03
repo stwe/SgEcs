@@ -211,8 +211,12 @@ namespace sg
                 auto& entity{ GetEntity(entityIndex) };
                 entity.bitset[Settings::template GetComponentBit<TComponent>()] = true;
 
+                // Komponente an `dataIndex` holen
                 auto& component{ m_components.template GetComponent<TComponent>(entity.dataIndex) };
+
+                // placement new - konstruiert die Komponente in bereits allozierten Speicher
                 new (&component) TComponent(std::forward<decltype(args)>(args)...);
+
                 return component;
             }
 
