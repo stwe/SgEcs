@@ -166,7 +166,7 @@ namespace sg
             using SignatureList = TSignatureList;
             using ThisType = Settings<ComponentList, SignatureList>;
             using Bitset = std::bitset<boost::mpl::size<ComponentList>::value>;
-            using SignatureBitsets = typename TupleTypeRepeater<boost::mpl::size<SignatureList>::value, Bitset>::type;
+            using TupleOfSignatureBitsets = typename TupleTypeRepeater<boost::mpl::size<SignatureList>::value, Bitset>::type;
             using SignatureBitsetsStorage = SignatureBitsetsStorage<ThisType>;
 
             /**
@@ -255,14 +255,16 @@ namespace sg
             auto& GetSignatureBitset() noexcept
             {
                 static_assert(Settings::template IsValidSignature<TSignature>());
-                return std::get<Settings::template GetSignatureId<TSignature>()>(m_signatureBitsets);
+
+                return std::get<Settings::template GetSignatureId<TSignature>()>(m_tupleOfSignatureBitsets);
             }
 
             template <typename TSignature>
             const auto& GetSignatureBitset() const noexcept
             {
                 static_assert(Settings::template IsValidSignature<TSignature>());
-                return std::get<Settings::template GetignatureId<TSignature>()>(m_signatureBitsets);
+
+                return std::get<Settings::template GetignatureId<TSignature>()>(m_tupleOfSignatureBitsets);
             }
 
         protected:
@@ -270,46 +272,30 @@ namespace sg
         private:
             using Settings = TSettings;
             using SignatureList = typename TSettings::SignatureList;
-            using SignatureBitsets = typename Settings::SignatureBitsets;
+            using TupleOfSignatureBitsets = typename Settings::TupleOfSignatureBitsets;
 
-            SignatureBitsets m_signatureBitsets;
+            TupleOfSignatureBitsets m_tupleOfSignatureBitsets;
 
             template <typename TSignature>
             void InitSignatureBitset() noexcept
             {
                 auto& bitset{ GetSignatureBitset<TSignature>() };
 
-                /*
-                using SignatureComponents =
-                    typename SignatureBitsets::
-                    template SignatureComponents<TSignature>; // todo implement
-                */
+                using SignatureComponents = TSignature;
 
-                // für alle Komponenten in der Signatur das Bit setzen
-                /*
-                boost::mpl::for_each<SignatureComponents>([this, &bitset](auto t)
+                boost::mpl::for_each<SignatureComponents>([&bitset](auto componentType)
                 {
-                    bitset[Settings::template GetComponentBit<decltype(t)>()] = true;
+                    bitset[Settings::template GetComponentBit<decltype(componentType)>()] = true;
                 });
-                */
-
-                /*
-                boost::mpl::for_each<ComponentList>
-                (
-                    [&tupleOfComponentVectors = m_tupleOfComponentVectors, newCapacity](auto arg)
-                    {
-                        std::get<std::vector<decltype(arg)>>(tupleOfComponentVectors).resize(newCapacity);
-                    }
-                );
-                 */
             }
 
         public:
             SignatureBitsetsStorage()
             {
-                boost::mpl::for_each<SignatureList>([this](auto t)
+                // Calls the `InitSignatureBitset()` method for each signature type from the `SignatureList`.
+                boost::mpl::for_each<SignatureList>([this](auto signatureType)
                 {
-                    this->InitSignatureBitset<decltype(t)>();
+                    this->InitSignatureBitset<decltype(signatureType)>();
                 });
             }
         };
@@ -502,7 +488,7 @@ namespace sg
 
             /**
              * @brief Returns the number of living entities.
-             * @return 
+             * @return std::size_t
              */
             std::size_t GetEntityCount() const noexcept
             {
@@ -559,10 +545,13 @@ namespace sg
             std::size_t m_sizeNext{ 0 };
 
             /**
-             * @brief The `ComponententStorage`is the wrapper of `TupleOfComponentVectors`
+             * @brief Wrapper of `TupleOfComponentVectors`.
              */
             ComponentStorage m_componentStorage;
 
+            /**
+             * @brief Wrapper of `TupleOfSignatureBitsets`.
+             */
             SignatureBitsetsStorage m_signatureBitsetsStorage;
 
             /**

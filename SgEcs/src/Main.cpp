@@ -84,12 +84,12 @@ namespace sg
                 std::cout << "After the entity with index 0 is created.\n";
                 manager.PrintState(std::cout);
 
-                // add component
+                // add a component
                 auto& healthComponent{ manager.AddComponent<HealthComponent>(i0) };
                 assert(healthComponent.health == 0);
                 healthComponent.health = static_cast<float>(80);
 
-                // check `has` and `delete`
+                // check `has` and `delete` component
                 assert(manager.HasComponent<HealthComponent>(i0));
                 assert(!manager.HasComponent<InputComponent>(i0));
 
@@ -106,6 +106,19 @@ namespace sg
 
                 std::cout << "After refresh\n";
                 manager.PrintState(std::cout);
+
+                // signatures
+                using Bitset = MySettings::Bitset;
+                SignatureBitsetsStorage<MySettings> signatureBitsetsStorage;
+
+                const auto& bitmapSigVel{ signatureBitsetsStorage.GetSignatureBitset<SignatureVelocity>() };
+                const auto& bitmapSigLif{ signatureBitsetsStorage.GetSignatureBitset<SignatureLife>() };
+
+                Bitset vel{ std::string("110") };
+                Bitset lif{ std::string("001") };
+
+                assert(bitmapSigVel == vel );
+                assert(bitmapSigLif == lif);
 
                 // clear
                 manager.Clear();
