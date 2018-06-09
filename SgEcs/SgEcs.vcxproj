@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Ecs.hpp" />
+    <ClInclude Include="src\Util.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp" />
