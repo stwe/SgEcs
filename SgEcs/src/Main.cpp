@@ -14,7 +14,7 @@ namespace sg
 
             struct HealthComponent
             {
-                float health{ 0 };
+                int health{ 0 };
             };
 
             struct CircleComponent
@@ -24,7 +24,7 @@ namespace sg
 
             struct InputComponent
             {
-                float key{ 0 };
+                int key{ 0 };
             };
 
             using MyComponentsList = ComponentList<HealthComponent, CircleComponent, InputComponent>;
@@ -39,13 +39,13 @@ namespace sg
             using MySignaturesList = SignatureList<SignatureVelocity, SignatureLife>;
 
             //-------------------------------------------------
-            // Alias `Settings` with above two compile-time lists
+            // Create `Settings` with above two compile-time lists
             //-------------------------------------------------
 
             using MySettings = Settings<MyComponentsList, MySignaturesList>;
 
             //-------------------------------------------------
-            // Alias `Manager` with above compile-time `Settings`
+            // Create `Manager` with above compile-time `Settings`
             //-------------------------------------------------
 
             using MyManager = Manager<MySettings>;
@@ -87,7 +87,7 @@ namespace sg
                 // add a component
                 auto& healthComponent{ manager.AddComponent<HealthComponent>(i0) };
                 assert(healthComponent.health == 0);
-                healthComponent.health = static_cast<float>(80);
+                healthComponent.health = 80;
 
                 // check `has` and `delete` component
                 assert(manager.HasComponent<HealthComponent>(i0));

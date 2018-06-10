@@ -94,8 +94,8 @@ namespace sg
         //-------------------------------------------------
 
         /**
-         * @brief Creates a single `std::vector` for every component type.
-         *        All types are stored in a `std :: tuple`.
+         * @brief Creates a single `std::vector` for every component type and stored all
+         *        vector types in a `std :: tuple`.
          * @tparam TSettings The Ecs settings and wrapper for the `ComponentList` and `SignatureList`.
          */
         template <typename TSettings>
@@ -323,7 +323,7 @@ namespace sg
             /**
              * @brief Checks if the entity is alive.
              * @param entityIndex The entity index.
-             * @return bool
+             * @return auto
              */
             auto IsAlive(const EntityIndex entityIndex) const noexcept
             {
@@ -363,7 +363,7 @@ namespace sg
              */
             void Clear() noexcept
             {
-                for (auto i{ 0 }; i < m_capacity; ++i)
+                for (auto i{ 0u }; i < m_capacity; ++i)
                 {
                     auto& entity(m_entities[i]);
 
