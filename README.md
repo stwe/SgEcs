@@ -85,7 +85,7 @@ using MySignaturesList = SignatureList<SignatureVelocity, SignatureLife>;
 using MySettings = Settings<MyComponentsList, MySignaturesList>;
 ```
 
-Mit den so erstellten Alias `MySettings` kann der `Manager` erstellt werden.
+Mit dem so erstellten Alias `MySettings` kann der `Manager` erstellt werden.
 
 ```cpp
 //-------------------------------------------------
@@ -103,7 +103,7 @@ Es wird eine Instanz von `MyManager` erzeugt.
 MyManager manager;
 ```
 
-Mit dem `manager` können jetzt zur Laufzeit u.a. Entities erstellt und mit Komponenten
+Mit dem `manager` können jetzt zur Laufzeit u.a. Entities erstellt und diese mit Komponenten
 verbunden werden.
 
 ```cpp
@@ -181,8 +181,6 @@ n = new && alive
 2 Entities wurden deaktiviert (E1 und E3)
 3 Entities wurde neu erstellt (E5 - E7)
 
-Das ergibt folgenden Bild vor dem Refresh():
-
 -------------------------------------------------
 | E0 | E1 | E2 | E3 | E4 | E5 | E6 | E7 |   |   |
 -------------------------------------------------
@@ -238,9 +236,11 @@ healthComponent.health = 80;
 
 a) `AddComponent()` prüft zunächst, ob sich die Komponente in der Komponentenliste der `Settings`
 Klasse befindet - also gültig ist.
+
 b) Anschließend wird das KomponentenBit der Komponente geholt. Das Bit entspricht der KomponentenId, welche
-wiederum der Position der Komponente in der Komponentenliste entspricht. Das Bitset der Entity wird dieser
+wiederum der Position der Komponente in der Komponentenliste entspricht. Das Bitset der Entity wird an dieser
 Position gesetzt.
+
 c) Schließlich wird die Komponente aus dem `m_componentStorage` geholt und mittels "placement new" neu erstellt.
 
 ***ComponentStorage***
@@ -253,8 +253,9 @@ Beispiel:
 std::tuple<std::vector<HealthComponent>, std::vector<CircleComponent>, std::vector<InputComponent>
 ```
 
-Auf die Elemente der `std::vector` Typen wird mit dem Entity `dataIndex` zugegriffen. Auf die `std::vector`
-Typen wird ein `resize()` ausgeführt, wenn dies für `m_entities` notwendig ist.
+Auf die Elemente der `std::vector` Typen wird mit dem Entity `dataIndex` zugegriffen.
+
+Auf die `std::vector` Typen wird dann ein `resize()` ausgeführt, wenn dies für `m_entities` notwendig ist.
 
 ____
 
