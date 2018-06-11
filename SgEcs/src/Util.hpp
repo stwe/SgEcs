@@ -59,5 +59,31 @@ namespace sg
                 AddTo<boost::mpl::_1, boost::mpl::_2>
             >::type;
         };
+
+        //-------------------------------------------------
+        // Rename TypeList to a new type
+        //-------------------------------------------------
+
+        // Job:
+        // Call:
+
+        template <typename TList, template <typename...> typename TNewName>
+        struct Rename
+        {
+            template <typename Seq, typename T>
+            struct AddTo;
+
+            template <typename T, typename... Ts>
+            struct AddTo<TNewName<Ts...>, T>
+            {
+                using type = TNewName<T, Ts...>;
+            };
+
+            using type = typename boost::mpl::fold<
+                TList,
+                TNewName<>,
+                AddTo<boost::mpl::_1, boost::mpl::_2>
+            >::type;
+        };
     }
 }

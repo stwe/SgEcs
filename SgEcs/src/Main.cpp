@@ -117,7 +117,7 @@ namespace sg
                 Bitset vel{ std::string("110") };
                 Bitset lif{ std::string("001") };
 
-                assert(bitmapSigVel == vel );
+                assert(bitmapSigVel == vel);
                 assert(bitmapSigLif == lif);
 
                 // clear
@@ -128,6 +128,29 @@ namespace sg
 
                 assert(manager.GetEntityCount() == 0);
             }
+
+            void RunTimeTestsSignatures()
+            {
+                MyManager manager;
+
+                for (auto index{ 0u }; index < 40; ++index)
+                {
+                    const auto entity{ manager.CreateIndex() };
+
+                    auto& healthComponent{ manager.AddComponent<HealthComponent>(entity) };
+                    healthComponent.health = index;
+                }
+
+                manager.Refresh();
+
+                manager.ForEntitiesMatching<SignatureLife>
+                (
+                    [](auto entityIndex, auto& healthComponent)
+                    {
+                        healthComponent.health = 99;
+                    }
+                );
+            }
         }
     }
 }
@@ -135,6 +158,7 @@ namespace sg
 int main()
 {
     sg::ecs::test::RuntimeTests();
+    sg::ecs::test::RunTimeTestsSignatures();
     std::cout << "Tests passed!" << std::endl;
 
     return 0;

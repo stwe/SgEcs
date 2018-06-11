@@ -255,6 +255,19 @@ std::tuple<std::vector<HealthComponent>, std::vector<CircleComponent>, std::vect
 
 Auf die Elemente der `std::vector` Typen wird mit dem Entity `dataIndex` zugegriffen.
 
+```cpp
+
+-----------------------------------------------------------------------------------
+                       | <HealthComponent> | <CircleComponent> | <InputComponent> |
+-----------------------------------------------------------------------------------
+| Entity->dataIndex #0 |       x           |                   |                  |
+| Entity->dataIndex #1 |                   |        x          |                  |
+| Entity->dataIndex #2 |                   |        x          |        x         |
+| Entity->dataIndex #3 |       x           |                   |                  |
+| Entity->dataIndex #4 |                   |                   |        x         |
+-----------------------------------------------------------------------------------
+```
+
 Auf die `std::vector` Typen wird dann ein `resize()` ausgeführt, wenn dies für `m_entities` notwendig ist.
 
 ____

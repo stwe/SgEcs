@@ -95,7 +95,7 @@ namespace sg
 
         /**
          * @brief Creates a single `std::vector` for every component type and stored all
-         *        vector types in a `std :: tuple`.
+         *        vector types in a `std::tuple`.
          * @tparam TSettings The Ecs settings and wrapper for the `ComponentList` and `SignatureList`.
          */
         template <typename TSettings>
@@ -104,7 +104,7 @@ namespace sg
         public:
             /**
              * @brief Grow every vector.
-             * @param newCapacity 
+             * @param newCapacity
              */
             void GrowTo(std::size_t newCapacity)
             {
@@ -170,7 +170,7 @@ namespace sg
             using SignatureBitsetsStorage = SignatureBitsetsStorage<ThisType>;
 
             /**
-             * @brief Determines the number of all components.
+             * @brief Determines the number of all component types.
              * @return std::size_t
              */
             static constexpr std::size_t ComponentCount() noexcept
@@ -212,7 +212,7 @@ namespace sg
             }
 
             /**
-             * @brief Determines the number of all signatures.
+             * @brief Determines the number of all signature types.
              * @return std::size_t
              */
             static constexpr std::size_t SignatureCount() noexcept
@@ -264,7 +264,7 @@ namespace sg
             {
                 static_assert(Settings::template IsValidSignature<TSignature>());
 
-                return std::get<Settings::template GetignatureId<TSignature>()>(m_tupleOfSignatureBitsets);
+                return std::get<Settings::template GetSignatureId<TSignature>()>(m_tupleOfSignatureBitsets);
             }
 
         protected:
@@ -311,9 +311,51 @@ namespace sg
          * using MyManager = sg::ecs::Manager<MySettings>;
          */
 
+        /**
+         * @brief Managed all entities and components at runtime.
+         * @tparam TSettings The Ecs settings and wrapper for the `ComponentList` and `SignatureList`.
+         */
         template <typename TSettings>
         class Manager
         {
+        private:
+            using Settings = TSettings;
+            using ThisType = Manager<Settings>;
+            using ComponentStorage = ComponentStorage<Settings>;
+            using Bitset = typename Settings::Bitset;
+            using Entity = Entity<Settings>;
+            using SignatureBitsetsStorage = SignatureBitsetsStorage<Settings>;
+
+            /**
+             * @brief The entities are stored contiguously in a `std::vector`.
+             */
+            std::vector<Entity> m_entities;
+
+            /**
+             * @brief Size of allocated storage capacity for m_entities.
+             */
+            std::size_t m_capacity{ 0 };
+
+            /**
+             * @brief Current size.
+             */
+            std::size_t m_size{ 0 };
+
+            /**
+             * @brief Next size.
+             */
+            std::size_t m_sizeNext{ 0 };
+
+            /**
+             * @brief Wrapper of `TupleOfSignatureBitsets`.
+             */
+            SignatureBitsetsStorage m_signatureBitsetsStorage;
+
+            /**
+             * @brief Wrapper of `TupleOfComponentVectors`.
+             */
+            ComponentStorage m_componentStorage;
+
         public:
             Manager()
             {
@@ -448,9 +490,44 @@ namespace sg
             }
 
             /**
-             * @brief Call lambda for every living entity.
-             * @tparam TCallable A lambda.
-             * @param callable A lamda to pass.
+             * @brief Returns a reference to the component.
+             * @tparam TComponent The component type
+             * @param entityIndex The entity index
+             * @return Reference to the component.
+             */
+            template <typename TComponent>
+            auto& GetComponent(const EntityIndex entityIndex) noexcept
+            {
+                static_assert(Settings::template IsValidComponent<TComponent>());
+
+                assert(HasComponent<TComponent>(entityIndex));
+
+                auto& entity{ GetEntity(entityIndex) };
+
+                return m_componentStorage.template GetComponent<TComponent>(entity.dataIndex);
+            }
+
+            /**
+             * @brief Checks if a entity matches a signature using `bitwise and` operation.
+             * @tparam TSignature The signature type.
+             * @param entityIndex The entity index.
+             * @return bool
+             */
+            template <typename TSignature>
+            auto MatchesSignature(const EntityIndex entityIndex) const noexcept
+            {
+                static_assert(Settings::template IsValidSignature<TSignature>());
+
+                const auto& entityBitset{ GetEntity(entityIndex).bitset };
+                const auto& signatureBitset{ m_signatureBitsetsStorage.template GetSignatureBitset<TSignature>() };
+
+                return (signatureBitset & entityBitset) == signatureBitset;
+            }
+
+            /**
+             * @brief Iterate over all alive entities.
+             * @tparam TCallable A callable type.
+             * @param callable A Closure to pass.
              */
             template <typename TCallable>
             void ForEntities(TCallable&& callable)
@@ -461,33 +538,31 @@ namespace sg
                 }
             }
 
-            // todo
+            /**
+             * @brief Iterate over all alive entities matching a particular signature.
+             * @tparam TSignature The signature type.
+             * @tparam TCallable A callable type.
+             * @param callable A Closure to pass.
+             */
             template <typename TSignature, typename TCallable>
             void ForEntitiesMatching(TCallable&& callable)
             {
-                // prüft, ob die Signatur in der Signaturliste ist
                 static_assert(Settings::template IsValidSignature<TSignature>());
-                /*
-                ForEntities([this, &callable](auto i)
-                {
-                    if (matchesSignature<TSignature>(i))
+
+                ForEntities
+                (
+                    [this, &callable](auto entityIndex)
                     {
-                        // If an entity matches a specific signature, we
-                        // know the component types that the entity will
-                        // have.
-
-                        // So, we'll expand references to those component
-                        // types directly in the function call, saving 
-                        // unnecessary boilerplate user code.
-
-                        expandSignatureCall<TSignature>(i, callable);
+                        if (MatchesSignature<TSignature>(entityIndex))
+                        {
+                            ExpandSignatureCall<TSignature>(entityIndex, callable);
+                        }
                     }
-                });
-                */
+                );
             }
 
             /**
-             * @brief Returns the number of living entities.
+             * @brief Returns the number of alive entities.
              * @return std::size_t
              */
             std::size_t GetEntityCount() const noexcept
@@ -518,42 +593,6 @@ namespace sg
         protected:
 
         private:
-            using Settings = TSettings;
-            using Bitset = typename Settings::Bitset;
-            using Entity = Entity<Settings>;
-            using ComponentStorage = ComponentStorage<Settings>;
-            using SignatureBitsetsStorage = SignatureBitsetsStorage<Settings>;
-
-            /**
-             * @brief The entities are stored contiguously in a `std::vector`.
-             */
-            std::vector<Entity> m_entities;
-
-            /**
-             * @brief Size of allocated storage capacity for m_entities.
-             */
-            std::size_t m_capacity{ 0 };
-
-            /**
-             * @brief Current size.
-             */
-            std::size_t m_size{ 0 };
-
-            /**
-             * @brief Next size.
-             */
-            std::size_t m_sizeNext{ 0 };
-
-            /**
-             * @brief Wrapper of `TupleOfComponentVectors`.
-             */
-            ComponentStorage m_componentStorage;
-
-            /**
-             * @brief Wrapper of `TupleOfSignatureBitsets`.
-             */
-            SignatureBitsetsStorage m_signatureBitsetsStorage;
-
             /**
              * @brief Grow entity and component vectors.
              * @param newCapacity The new capacity.
@@ -593,8 +632,8 @@ namespace sg
 
             /**
              * @brief Get entity by index.
-             * @param entityIndex The index.
-             * @return Reference to entity.
+             * @param entityIndex The entity index.
+             * @return Reference to the entity.
              */
             auto& GetEntity(const EntityIndex entityIndex) noexcept
             {
@@ -604,8 +643,8 @@ namespace sg
 
             /**
              * @brief Get entity by index.
-             * @param entityIndex The index.
-             * @return Const reference to entity.
+             * @param entityIndex The entity index.
+             * @return Const reference to the entity.
              */
             const auto& GetEntity(const EntityIndex entityIndex) const noexcept
             {
@@ -683,6 +722,51 @@ namespace sg
                     // Move both "iterator" indices.
                     ++iD; --iA;
                 }
+            }
+
+            /**
+             * @brief Inner helper class. It contains a single static `call` function.
+             * @tparam TComponents A variadic number of component types.
+             */
+            template <typename... TComponents>
+            struct ExpandCallHelper
+            {
+                /**
+                 * @brief Expand the component types into component references.
+                 * @tparam TCallable A callable type.
+                 * @param entityIndex The index of the entity.
+                 * @param manager A reference to the caller manager.
+                 * @param callable The function to call.
+                 */
+                template<typename TCallable>
+                static void Call(const EntityIndex entityIndex, ThisType& manager, TCallable&& callable)
+                {
+                    auto dataIndex{ manager.GetEntity(entityIndex).dataIndex };
+
+                    callable
+                    (
+                        entityIndex,
+                        manager.m_componentStorage.template GetComponent<TComponents>(dataIndex)...
+                    );
+                }
+            };
+
+            /**
+             * @brief Rename TypeList to `ExpandCallHelper`.
+             * @tparam TSignature A signature type.
+             * @tparam TCallable A callable type.
+             * @param entityIndex The entity index.
+             * @param callable A Closure.
+             */
+            template <typename TSignature, typename TCallable>
+            void ExpandSignatureCall(const EntityIndex entityIndex, TCallable&& callable)
+            {
+                static_assert(Settings::template IsValidSignature<TSignature>());
+
+                using RequiredComponents = TSignature;
+                using Helper = typename Rename<RequiredComponents, ExpandCallHelper>::type;
+
+                Helper::Call(entityIndex, *this, callable);
             }
         };
     }
