@@ -1,3 +1,9 @@
+// @file: Ecs.hpp
+// @see: CppCon 2015: Vittorio Romeo `Implementation of a component-based entity system in modern C++`
+// @author: Vittorio Romeo
+// @license: Vittorio Romeo's original work is licensed under the AFL 3.0 | https://opensource.org/licenses/AFL-3.0
+// This is a fork of the above work, which is used the `boost::mpl` lib.
+
 #pragma once
 
 #include <cassert>
