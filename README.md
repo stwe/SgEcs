@@ -36,7 +36,10 @@ struct InputComponent
 
 ## III. Systeme
 
-todo
+Systeme enthalten die Logik und gehen nur mit solchen Komponenten um, mit denen
+sie sich befassen sollen (Signatur). Jede Signatur besteht aus einer Liste von
+verschiedenen Komponenten. Eine Entity entspricht dann einer Signatur, wenn sie
+alle Komponenten enthält, die von der Signatur benötigt werden.
 
 ____
 
@@ -44,8 +47,8 @@ ____
 
 ## I. Compile-time settings
 
-Alle Komponenten und Signaturen sind bereits zur Kompilierungszeit bekannt. Es müssen
-entsprechende Listen erstellt und an eine `Settings` Klasse übergeben werden.
+Alle Komponenten- und Signaturlisten sind bereits zur Kompilierungszeit bekannt. Es müssen
+die entsprechenden Listen erstellt und an eine `Settings` Klasse übergeben werden.
 
 ```cpp
 //-------------------------------------------------
@@ -122,7 +125,7 @@ ___
 
 ### 1. CreateIndex
 
-Eine neue Entity kann mit `const auto i0 = manager.CreateIndex();` erstellt werden.
+Eine neue Entity kann z.B. mit `const auto i0 = manager.CreateIndex();` erstellt werden.
 
 Um alle Entities zusammenhängend zu speichern, enthält der `Manager` einen Member `m_entities`:
 
@@ -219,8 +222,6 @@ for (EntityIndex index{ 0 }; index < m_size; ++index)
 
 ## II. Komponenten
 
-### 1. AddComponent
-
 Die Zuordnung einer Komponente zu einer Entity erfolgt mit:
 
 ```cpp
@@ -269,6 +270,49 @@ Auf die Elemente der `std::vector` Typen wird mit dem Entity `dataIndex` zugegri
 ```
 
 Auf die `std::vector` Typen wird dann ein `resize()` ausgeführt, wenn dies für `m_entities` notwendig ist.
+
+## III. Systeme
+
+Ein System wird nur dann aktiv, wenn der Entity alle notwendigen Komponenten zugeordnet sind.
+Um das festzustellen, wird über alle "lebenden" Entities iteriert und geprüft, ob die angegebene
+Signatur passt. In diesem Fall hat das System Zugriff auf die Komponenten der Entity - aber nicht
+auf alle, sondern nur auf solche, die gleichzeitig die Signatur definieren.
+
+```cpp
+manager.ForEntitiesMatching<SignatureLife>
+(
+    [](auto entityIndex, HealthComponent& healthComponent)
+    {
+        healthComponent.health = 99;
+    }
+);
+
+manager.ForEntitiesMatching<SignatureVelocity>
+(
+    [](auto entityIndex, InputComponent& inputComponent, CircleComponent& circleComponent)
+    {
+        inputComponent.key = 32;
+        circleComponent.radius = 64.0f;
+    }
+);
+```
+
+Jede Signatur und jede Entity verfügt über ein `std::bitset`. Dabei ist jedes Bit für einen Komponententyp
+reserviert. Welches Bit gesetzt wird, bestimmt die Id der Komponente. Um nun zu überprüfen, ob Entity und
+Signatur übereinstimmen, wird ein bitweises UND verwendet.
+
+In der Manager Klasse sieht das so aus:
+
+```cpp
+
+// ...
+
+// Das Bitset der Signatur und das Bitset der Entity werden UND verknüpft:
+return (signatureBitset & entityBitset) == signatureBitset;
+```
+
+Sollte das Ergebnis dieser Verknüpfung dem Bitset der Signatur entsprechen, erfüllt die Entity alle
+Anforderungen der Signatur.
 
 ____
 

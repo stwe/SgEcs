@@ -247,10 +247,19 @@ namespace sg
         // SignatureBitsetsStorage
         //-------------------------------------------------
 
+        /**
+         * @brief Creates and store the signature bitsets.
+         * @tparam TSettings The Ecs settings and wrapper for the `ComponentList` and `SignatureList`.
+         */
         template <typename TSettings>
         class SignatureBitsetsStorage
         {
         public:
+            /**
+             * @brief Get a bitset.
+             * @tparam TSignature The signature type.
+             * @return Reference to the bitset.
+             */
             template <typename TSignature>
             auto& GetSignatureBitset() noexcept
             {
@@ -259,6 +268,11 @@ namespace sg
                 return std::get<Settings::template GetSignatureId<TSignature>()>(m_tupleOfSignatureBitsets);
             }
 
+            /**
+             * @brief Get a bitset.
+             * @tparam TSignature The signature type.
+             * @return Const reference to the bitset.
+             */
             template <typename TSignature>
             const auto& GetSignatureBitset() const noexcept
             {
@@ -276,6 +290,10 @@ namespace sg
 
             TupleOfSignatureBitsets m_tupleOfSignatureBitsets;
 
+            /**
+             * @brief Initializing the bitset for a single signature.
+             * @tparam TSignature Th signature type.
+             */
             template <typename TSignature>
             void InitSignatureBitset() noexcept
             {
@@ -290,6 +308,9 @@ namespace sg
             }
 
         public:
+            /**
+             * @brief Initialize all bitsets on construction.
+             */
             SignatureBitsetsStorage()
             {
                 // Calls the `InitSignatureBitset()` method for each signature type from the `SignatureList`.
@@ -555,7 +576,7 @@ namespace sg
                     {
                         if (MatchesSignature<TSignature>(entityIndex))
                         {
-                            ExpandSignatureCall<TSignature>(entityIndex, callable);
+                            this->template ExpandSignatureCall<TSignature>(entityIndex, callable);
                         }
                     }
                 );

@@ -33,7 +33,7 @@ namespace sg
             // Define signatures && signature list
             //-------------------------------------------------
 
-            using SignatureVelocity = Signature<InputComponent, CircleComponent>;
+            using SignatureVelocity = Signature<CircleComponent, InputComponent>;
             using SignatureLife = Signature<HealthComponent>;
 
             using MySignaturesList = SignatureList<SignatureVelocity, SignatureLife>;
@@ -141,13 +141,26 @@ namespace sg
                     healthComponent.health = index;
                 }
 
+                const auto entity{ manager.CreateIndex() };
+                auto& inputComponent{ manager.AddComponent<InputComponent>(entity) };
+                auto& circleComponent{ manager.AddComponent<CircleComponent>(entity) };
+
                 manager.Refresh();
 
                 manager.ForEntitiesMatching<SignatureLife>
                 (
-                    [](auto entityIndex, auto& healthComponent)
+                    [](auto entityIndex, HealthComponent& healthComponent)
                     {
                         healthComponent.health = 99;
+                    }
+                );
+
+                manager.ForEntitiesMatching<SignatureVelocity>
+                (
+                    [](auto entityIndex, InputComponent& inputComponent, CircleComponent& circleComponent)
+                    {
+                        inputComponent.key = 32;
+                        circleComponent.radius = 64.0f;
                     }
                 );
             }
