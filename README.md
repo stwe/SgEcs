@@ -278,38 +278,45 @@ ____
 
 ***public***
 
-`auto IsAlive(const EntityIndex entityIndex)`: Prüft, ob die Entity "lebt".
+**`auto IsAlive(const EntityIndex entityIndex)`:** Prüft, ob die Entity "lebt".
 
-`void Kill(const EntityIndex entityIndex)`: Nach dem Aufruf ist die Entity "tot".
+**`void Kill(const EntityIndex entityIndex)`:** Nach dem Aufruf ist die Entity "tot".
 
-`auto CreateIndex()`: Erstellt eine neue Entity.
+**`auto CreateIndex()`:** Erstellt eine neue Entity.
 
-`void Clear()`: Nach dem Aufruf sind alle Entities "tot", alle Bitsets gelöscht und alle Variablen zurückgesetzt.
+**`void Clear()`:** Nach dem Aufruf sind alle Entities "tot", alle Bitsets gelöscht und alle Variablen zurückgesetzt.
 
-`void Refresh()`: Ordnet die Entities neu an: Links alle "lebenden" und rechts alle "toten".
+**`void Refresh()`:** Ordnet die Entities neu an: Links alle "lebenden" und rechts alle "toten".
 
-`auto& AddComponent<TComponent>(const EntityIndex entityIndex, TArgs&&... args)`: Verbindet die Komponente mit einer Entity.
+**`auto& AddComponent<TComponent>(const EntityIndex entityIndex, TArgs&&... args)`:** Verbindet die Komponente mit einer Entity.
 
-`bool HasComponent<TComponent>(const EntityIndex entityIndex)`: Prüft, ob die Entity einer Komponente zugeordnet ist.
+**`bool HasComponent<TComponent>(const EntityIndex entityIndex)`:** Prüft, ob die Entity einer Komponente zugeordnet ist.
 
-`void DeleteComponent(const EntityIndex entityIndex)`: Löscht die Verbindung zwischen Komponente und Entity.
+**`void DeleteComponent(const EntityIndex entityIndex)`:** Löscht die Verbindung zwischen Komponente und Entity.
 
-`void ForEntities(TCallable&& callable)`: 
+**`auto& GetComponent<TComponent>(const EntityIndex entityIndex)`:** Gibt die Referenz auf eine Komponente zurück.
 
-`void ForEntitiesMatching<TSignature>(TCallable&& callable)`:
+**`auto MatchesSignature<TSignature>(const EntityIndex entityIndex)`:** Prüft eine Entity gegen eine Signatur.
 
-`std::size_t GetEntityCount()`: Gibt die Anzahl "lebender" Entities zurück.
+**`void ForEntities(TCallable&& callable)`:** Iteriert über alle "lebenden" Entities.
 
-`void PrintState(std::ostream& oss)`: Ausgabe von Debug-Infos.
+**`void ForEntitiesMatching<TSignature>(TCallable&& callable)`:** Iteriert über alle "lebenden" Entities, die mit einer bestimmten Signatur übereinstimmen.
+
+**`std::size_t GetEntityCount()`:** Gibt die Anzahl "lebender" Entities zurück.
+
+**`void PrintState(std::ostream& oss)`:** Ausgabe von Debug-Infos.
 
 ***private***
 
-`void GrowTo(std::size_t newCapacity)`: `resize()` auf `m_entities` und alle `std::vector` in `ComponentStorage`.
+**`void GrowTo(std::size_t newCapacity)`:** `resize()` auf `m_entities` und alle `std::vector` in `ComponentStorage`.
 
-`void GrowIfNeeded()`: Prüft, ob `GrowTo()` ausgeführt werden muss.
+**`void GrowIfNeeded()`:** Prüft, ob `GrowTo()` ausgeführt werden muss.
 
-`auto& GetEntity(const EntityIndex entityIndex)`: Gibt eine Referenz auf eine Entity zurück.
+**`auto& GetEntity(const EntityIndex entityIndex)`:** Gibt eine Referenz auf eine Entity zurück.
 
-`const auto& GetEntity(const EntityIndex entityIndex)`: Gibt eine const Referenz auf eine Entity zurück.
+**`const auto& GetEntity(const EntityIndex entityIndex)`:** Gibt eine const Referenz auf eine Entity zurück.
 
-`EntityIndex ArrangeAliveEntitiesToLeft()`: Ordnet die Entities neu an (links "lebende", rechts "tote").
+**`EntityIndex ArrangeAliveEntitiesToLeft()`:** Ordnet die Entities neu an (links "lebende", rechts "tote").
+
+**`void ExpandSignatureCall(const EntityIndex entityIndex, TCallable&& callable)`:** Eine reine Hilfsfunktion.
+
