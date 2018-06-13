@@ -54,15 +54,15 @@ namespace sg
             // Run compile-time tests
             //-------------------------------------------------
 
-            static_assert(MySettings::ComponentCount() == 3);
-            static_assert(MySettings::SignatureCount() == 2);
+            static_assert(MySettings::ComponentCount() == 3, "");
+            static_assert(MySettings::SignatureCount() == 2, "");
 
-            static_assert(MySettings::GetComponentId<HealthComponent>() == 0);
-            static_assert(MySettings::GetComponentId<CircleComponent>() == 1);
-            static_assert(MySettings::GetComponentId<InputComponent>() == 2);
+            static_assert(MySettings::GetComponentId<HealthComponent>() == 0, "");
+            static_assert(MySettings::GetComponentId<CircleComponent>() == 1, "");
+            static_assert(MySettings::GetComponentId<InputComponent>() == 2, "");
 
-            static_assert(MySettings::GetSignatureId<SignatureVelocity>() == 0);
-            static_assert(MySettings::GetSignatureId<SignatureLife>() == 1);
+            static_assert(MySettings::GetSignatureId<SignatureVelocity>() == 0, "");
+            static_assert(MySettings::GetSignatureId<SignatureLife>() == 1, "");
 
             //-------------------------------------------------
             // Runtime tests

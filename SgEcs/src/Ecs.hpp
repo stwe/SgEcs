@@ -2,7 +2,9 @@
 // @see: CppCon 2015: Vittorio Romeo `Implementation of a component-based entity system in modern C++`
 // @author: Vittorio Romeo
 // @license: Vittorio Romeo's original work is licensed under the AFL 3.0 | https://opensource.org/licenses/AFL-3.0
+
 // This is a fork of the above work, which is used the `boost::mpl` lib.
+// @author of changes: stwe - MIT License
 
 #pragma once
 
@@ -269,7 +271,7 @@ namespace sg
             template <typename TSignature>
             auto& GetSignatureBitset() noexcept
             {
-                static_assert(Settings::template IsValidSignature<TSignature>());
+                static_assert(Settings::template IsValidSignature<TSignature>(), "");
 
                 return std::get<Settings::template GetSignatureId<TSignature>()>(m_tupleOfSignatureBitsets);
             }
@@ -282,7 +284,7 @@ namespace sg
             template <typename TSignature>
             const auto& GetSignatureBitset() const noexcept
             {
-                static_assert(Settings::template IsValidSignature<TSignature>());
+                static_assert(Settings::template IsValidSignature<TSignature>(), "");
 
                 return std::get<Settings::template GetSignatureId<TSignature>()>(m_tupleOfSignatureBitsets);
             }
@@ -474,7 +476,7 @@ namespace sg
             template <typename TComponent, typename... TArgs>
             auto& AddComponent(const EntityIndex entityIndex, TArgs&&... args) noexcept
             {
-                static_assert(Settings::template IsValidComponent<TComponent>());
+                static_assert(Settings::template IsValidComponent<TComponent>(), "");
 
                 // update entity bitset
                 auto& entity{ GetEntity(entityIndex) };
@@ -498,7 +500,7 @@ namespace sg
             template <typename TComponent>
             bool HasComponent(const EntityIndex entityIndex) const noexcept
             {
-                static_assert(Settings::template IsValidComponent<TComponent>());
+                static_assert(Settings::template IsValidComponent<TComponent>(), "");
 
                 return GetEntity(entityIndex).bitset[Settings::template GetComponentBit<TComponent>()];
             }
@@ -511,7 +513,7 @@ namespace sg
             template <typename TComponent>
             void DeleteComponent(const EntityIndex entityIndex) noexcept
             {
-                static_assert(Settings::template IsValidComponent<TComponent>());
+                static_assert(Settings::template IsValidComponent<TComponent>(), "");
 
                 GetEntity(entityIndex).bitset[Settings::template GetComponentBit<TComponent>()] = false;
             }
@@ -543,7 +545,7 @@ namespace sg
             template <typename TSignature>
             auto MatchesSignature(const EntityIndex entityIndex) const noexcept
             {
-                static_assert(Settings::template IsValidSignature<TSignature>());
+                static_assert(Settings::template IsValidSignature<TSignature>(), "");
 
                 const auto& entityBitset{ GetEntity(entityIndex).bitset };
                 const auto& signatureBitset{ m_signatureBitsetsStorage.template GetSignatureBitset<TSignature>() };
@@ -574,7 +576,7 @@ namespace sg
             template <typename TSignature, typename TCallable>
             void ForEntitiesMatching(TCallable&& callable)
             {
-                static_assert(Settings::template IsValidSignature<TSignature>());
+                static_assert(Settings::template IsValidSignature<TSignature>(), "");
 
                 ForEntities
                 (
@@ -788,7 +790,7 @@ namespace sg
             template <typename TSignature, typename TCallable>
             void ExpandSignatureCall(const EntityIndex entityIndex, TCallable&& callable)
             {
-                static_assert(Settings::template IsValidSignature<TSignature>());
+                static_assert(Settings::template IsValidSignature<TSignature>(), "");
 
                 using RequiredComponents = TSignature;
                 using Helper = typename Rename<RequiredComponents, ExpandCallHelper>::type;
