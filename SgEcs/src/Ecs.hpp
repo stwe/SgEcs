@@ -527,7 +527,7 @@ namespace sg
             template <typename TComponent>
             auto& GetComponent(const EntityIndex entityIndex) noexcept
             {
-                static_assert(Settings::template IsValidComponent<TComponent>());
+                static_assert(Settings::template IsValidComponent<TComponent>(), "");
 
                 assert(HasComponent<TComponent>(entityIndex));
 
